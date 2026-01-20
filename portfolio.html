@@ -5,6 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Portfolio – Accueil</title>
     <meta name="description" content="Portfolio de Fahim – Développeur. Projets, compétences et contact." />
+    <link rel="apple-touch-icon" sizes="180x180" href="favicon/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="favicon/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="favicon/favicon-16x16.png">
+    <link rel="manifest" href="favicon/site.webmanifest">
+    <link rel="shortcut icon" href="favicon/favicon.ico">
     
     <!-- Détection du mode sombre avant le chargement -->
     <script>
@@ -71,6 +76,35 @@
     </script>
 
     <style>
+      @font-face {
+        font-family: 'Canaro';
+        src: url('fonts/Canaro-Light.woff') format('woff');
+        font-weight: 300;
+        font-style: normal;
+        font-display: swap;
+      }
+      @font-face {
+        font-family: 'Canaro';
+        src: url('fonts/Canaro-Medium.woff') format('woff');
+        font-weight: 500;
+        font-style: normal;
+        font-display: swap;
+      }
+      @font-face {
+        font-family: 'Canaro';
+        src: url('fonts/Canaro-SemiBold.woff') format('woff');
+        font-weight: 600;
+        font-style: normal;
+        font-display: swap;
+      }
+      @font-face {
+        font-family: 'Canaro';
+        src: url('fonts/Canaro-Bold.woff') format('woff');
+        font-weight: 700;
+        font-style: normal;
+        font-display: swap;
+      }
+
       /* Thèmes via variables */
       :root{
         --bg: #ffffff;
@@ -135,16 +169,14 @@
 
       .reveal {
         opacity: 0;
-        transform: translateY(14px);
-        filter: blur(6px);
-        transition: opacity 520ms cubic-bezier(.2,.9,.2,1), transform 520ms cubic-bezier(.2,.9,.2,1), filter 520ms cubic-bezier(.2,.9,.2,1);
-        will-change: opacity, transform, filter;
+        transform: translate3d(0, 14px, 0);
+        transition: opacity 520ms cubic-bezier(.2,.9,.2,1), transform 520ms cubic-bezier(.2,.9,.2,1);
+        backface-visibility: hidden;
       }
 
       .reveal.reveal-visible {
         opacity: 1;
-        transform: translateY(0);
-        filter: blur(0);
+        transform: translate3d(0, 0, 0);
       }
 
       .container {
@@ -783,11 +815,13 @@
         }
 
         .hero-visual {
-          width: 140px;
-          height: 140px;
+          width: 160px;
+          height: 160px;
           border-radius: 50%;
           display: grid;
           place-items: center;
+          padding: 8px;
+          box-sizing: border-box;
           overflow: hidden;
           box-shadow:
             0 0 0 4px #ffffff,
@@ -796,9 +830,20 @@
           background: #ffffff;
         }
 
+        [data-theme="dark"] .hero-visual {
+          background: var(--bg);
+          border: none;
+          box-shadow: 0 0 0 4px var(--primary);
+        }
+
+        [data-theme="dark"] .hero-visual img {
+          width: 100%;
+          height: 100%;
+        }
+
         .hero-visual img {
-          width: 84%;
-          height: 84%;
+          width: 100%;
+          height: 100%;
           border-radius: 50%;
           object-fit: cover;
           object-position: center;
@@ -4573,7 +4618,7 @@
           window.setTimeout(function(){
             popup.classList.remove('show');
             popup.classList.remove('closing');
-            document.body.style.overflow = 'auto';
+            document.body.style.overflow = '';
           }, 220);
         }
 
@@ -4725,14 +4770,13 @@
         }
 
         function closeModal() {
-          if (modal) {
-            modal.classList.add('closing');
-            window.setTimeout(function(){
-              modal.classList.remove('show');
-              modal.classList.remove('closing');
-              document.body.style.overflow = 'auto';
-            }, 220);
-          }
+          if (!modal) return;
+          modal.classList.add('closing');
+          window.setTimeout(function(){
+            modal.classList.remove('show');
+            modal.classList.remove('closing');
+            document.body.style.overflow = '';
+          }, 220);
         }
 
         if (learnMoreBtn) {
@@ -4778,7 +4822,7 @@
           window.setTimeout(function(){
             modal.classList.remove('show');
             modal.classList.remove('closing');
-            document.body.style.overflow = 'auto';
+            document.body.style.overflow = '';
           }, 220);
         } }
 
@@ -4869,6 +4913,7 @@
         let isAutoPlay = true;
         let isPaused = false;
         let isAnimating = false;
+        const centerOffset = 2; // Le slot "central" côté CSS correspond à data-index="2"
         
         const slides = document.querySelectorAll('.testimonials-section .testimonial-card');
         const dots = document.querySelectorAll('.testimonials-section .dot');
@@ -4893,7 +4938,7 @@
           window.requestAnimationFrame(function(){
             // Repositionner toutes les cartes selon leur nouvelle position relative
             slides.forEach(function(slide, index){
-              const relativeIndex = (index - currentCenter + slides.length) % slides.length;
+              const relativeIndex = (index - currentCenter + slides.length + centerOffset) % slides.length;
               slide.setAttribute('data-index', relativeIndex);
             });
 
@@ -5135,6 +5180,39 @@
             closeMenu();
           }
         });
+      })();
+    </script>
+
+    <script>
+      (function(){
+        var t;
+        function hasShow(el){ return !!(el && el.classList && el.classList.contains('show')); }
+        function sync(){
+          var navLinks = document.getElementById('navLinks');
+          var popup = document.getElementById('projectPopup');
+          var learn = document.getElementById('learnMoreInfoModal');
+          var quote = document.getElementById('quoteModal');
+          var locked = !!(
+            (navLinks && navLinks.classList.contains('active')) ||
+            hasShow(popup) ||
+            hasShow(learn) ||
+            hasShow(quote)
+          );
+          document.body.style.overflow = locked ? 'hidden' : '';
+        }
+        function schedule(){
+          window.clearTimeout(t);
+          t = window.setTimeout(sync, 0);
+        }
+        document.addEventListener('click', schedule, true);
+        document.addEventListener('keydown', schedule, true);
+        window.addEventListener('resize', schedule);
+        window.addEventListener('pageshow', schedule);
+        if (document.readyState === 'loading') {
+          document.addEventListener('DOMContentLoaded', sync);
+        } else {
+          sync();
+        }
       })();
     </script>
     
